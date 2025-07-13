@@ -1,0 +1,73 @@
+-- Total Number of Trips
+  SELECT COUNT(*) AS total_trips
+  FROM uber_trips
+
+-- Average Fare Amount Per Trip
+SELECT ROUND(AVG(fare_amount), 2) AS avg_fare
+FROM uber_trips
+
+-- Total Revenue Generated
+SELECT SUM(fare_amount + Surge_Fee) AS total_revenue
+FROM uber_trips
+
+-- Number of Trips By Vehicle Type
+SELECT Vehicle, COUNT(*) AS trip_count
+FROM uber_trips
+GROUP BY Vehicle
+
+-- Top 5 busiest pickup locations
+SELECT L.Location, COUNT(*) AS pickup_count
+FROM uber_trips T
+JOIN locations L ON T.PULocationID = L.LocationID
+GROUP BY L.Location
+ORDER BY pickup_count DESC
+LIMIT 5
+
+-- Average Trip Distance By city
+SELECT L.City, ROUND(AVG(T.trip_distance), 2) AS avg_distance
+FROM uber_trips T
+JOIN locations L ON T.PULocationID = L.LocationID
+GROUP BY L.City
+
+-- Number of trips By Payment Type
+SELECT Payment_type, COUNT(*) AS trip_count
+FROM uber_trips
+GROUP BY Payment_type
+
+-- Average Surge Fee By Vehicle Type
+SELECT Vehicle, ROUND(AVG(Surge_Fee), 2) AS avg_surge
+FROM uber_trips
+GROUP BY Vehicle
+
+-- Average Duration of Trips in Minutes
+SELECT 
+  ROUND(AVG(
+    TIMESTAMPDIFF(MINUTE, Pickup_Time, Drop_Off_Time)
+  ), 2) AS avg_trip_duration_minutes
+FROM uber_trips
+
+-- Most common pickup and drop location pair
+SELECT 
+  PU.Location AS pickup,
+  DO.Location AS drop,
+  COUNT(*) AS trip_count
+FROM uber_trips T
+JOIN locations PU ON T.PULocationID = PU.LocationID
+JOIN locations DO ON T.DOLocationID = DO.LocationID
+GROUP BY PU.Location, DO.Location
+ORDER BY trip_count DESC
+LIMIT 1
+
+-- Number of Trips with more than 3 passengers
+SELECT COUNT(*) AS large_group_trips
+FROM uber_trips
+WHERE passenger_count > 3
+
+-- Revenue by City
+SELECT 
+  L.City, 
+  ROUND(SUM(fare_amount + Surge_Fee), 2) AS total_revenue
+FROM uber_trips T
+JOIN locations L ON T.PULocationID = L.LocationID
+GROUP BY L.City
+ORDER BY total_revenue DESC 
